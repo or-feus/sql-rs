@@ -26,6 +26,7 @@ async fn main() -> Result<(), sqlx::Error> {
                     .connect(&str_db)
                     .await?;
 
+
     sqlx::migrate!("./migrations")
         .run(&pool)
         .await?;
@@ -33,8 +34,7 @@ async fn main() -> Result<(), sqlx::Error> {
     info!("success migrations.");
 
 
-    let row: (i64, ) = sqlx::query_as("SELECT $1")
-                        .bind(150_i64)
+    let row: (i64, ) = sqlx::query_as("INSERT INTO my_table (name) VALUES ('John Doe')")
                         .fetch_one(&pool)
                         .await?;
     
