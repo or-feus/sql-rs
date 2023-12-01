@@ -2,6 +2,8 @@ use dotenv::dotenv;
 use std::env;
 use sqlx::{postgres::{PgConnectOptions, PgConnection, PgPool, PgSslMode, PgPoolOptions}, pool::PoolOptions, Postgres};
 use tokio;
+use tracing::info;
+
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
@@ -25,7 +27,7 @@ async fn main() -> Result<(), sqlx::Error> {
                     .connect(&str_db)
                     .await?;
 
-    migrates(&pool);
+    migrates(&pool).await?;
 
 
     let row: (i64, ) = sqlx::query_as("SELECT $1")
@@ -43,6 +45,8 @@ async fn migrates(pool : &PgPool) -> Result<(), sqlx::Error> {
     sqlx::migrate!("./migrations")
         .run(pool)
         .await?;
+
+    info!("success migrations.");
 
     Ok(())
 
