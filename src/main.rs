@@ -1,15 +1,14 @@
 use dotenv::dotenv;
-use std::env;
-use sqlx::{postgres::{PgConnectOptions, PgConnection, PgPool, PgSslMode, PgPoolOptions}, pool::PoolOptions, Postgres};
+use sqlx::postgres::PgPoolOptions;
 use tokio;
 use tracing::info;
 
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
-    dotenv().ok();
 
-    // println!("{}", db);
+    dotenv().ok();
 
     let pg_id = env::var("PG_ID").unwrap();
     let pg_pw = env::var("PG_PW").unwrap();
@@ -27,7 +26,11 @@ async fn main() -> Result<(), sqlx::Error> {
                     .connect(&str_db)
                     .await?;
 
-    migrates(&pool).await?;
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await?;
+
+    info!("success migrations.");
 
 
     let row: (i64, ) = sqlx::query_as("SELECT $1")
@@ -40,14 +43,14 @@ async fn main() -> Result<(), sqlx::Error> {
 }
 
 
-async fn migrates(pool : &PgPool) -> Result<(), sqlx::Error> {
+// async fn migrates(pool : &PgPool) -> Result<(), sqlx::Error> {
 
-    sqlx::migrate!("./migrations")
-        .run(pool)
-        .await?;
+//     sqlx::migrate!("./migrations")
+//         .run(pool)
+//         .await?;
 
-    info!("success migrations.");
+//     info!("success migrations.");
 
-    Ok(())
+//     Ok(())
 
-}
+// }

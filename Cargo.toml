@@ -1,6 +1,5 @@
 [package]
 name = "sql-rs"
-author = "feus"
 version = "0.1.0"
 edition = "2021"
 
